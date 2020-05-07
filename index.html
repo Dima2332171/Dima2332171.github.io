@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Метод Хукка-Дживса</title>
+	<style>
+        html{
+            background-image: url(1.svg)
+        }
+		div { margin: 10px; width: 500px; height: 250px; padding: 5px; border: 1px dotted #000;border-radius: 20px; }
+	</style>
+</head>
+<body>
+	<form>
+<select name="sel" onchange="top.location.href = this.options[this.selectedIndex].value;">
+<option selected value="#">Перейти до:</option>
+<option VALUE="index3.html">Табличне розв'язання</option>
+<option VALUE="index1.html">Початкова сторінка</option></select></form>
+
+	<div>
+		<p><b>Вихідні значення</b>: </p>
+		f(x1, x2) = <span id="frn"></span><br>
+		&epsilon; = <span id="eps"></span> <br>
+		x1 = <span id="x1"></span><br>
+		x2 = <span id="x2"></span><br>
+		f(x1, x2) = <span id="fx"></span>
+	</div>
+	
+
+
+	<script>
+
+		let $ = (sel) => {
+			let dom = document.querySelector(sel);
+			let self = this;
+
+			this.last = () => {
+				let nodes = div.querySelectorAll(sel);
+				dom = nodes[nodes.length-1];
+				return self;
+			}
+
+			this.append = (h) => { dom.innerHTML += h; }
+			this.html = (h) => { dom.innerHTML = h; }
+
+			return this;
+		}
+        
+
+		
+
+		/**
+		 * [Целевая функция]
+		 * @param  {Number} x  [x1 - направление по оси x]
+		 * @param  {Number} x  [x2 - направление по оси y]
+		 * @return {Number}    [Значение функции в точке]
+		 */
+let prop = confirm("Почати з запропонованими даними?");
+if(prop==true){
+    let component = (k, nextPointer, valFx, prevPointer, valPrevPointer, valNextPointer, h, fx) => { 
+			return ` 
+				<div>
+					<p><b>Ітерація</b>, k = ${k} </p>
+					Пошук по зразку: <br>
+					x <sup>${  prevPointer}</sup>(${valPrevPointer}), x <sup>${nextPointer}</sup>(${valNextPointer}) <br>
+                    f1(x1,x2-h) = ${f1};<br>
+                    f2(x1+h,x2) = ${f2};<br>
+                    f3(x1,x2+h) = ${f3};<br>
+                    f4(x1-h,x2) = ${f4};<br>
+                    Оскільки:
+					f(x <sup>${nextPointer}</sup>) = ${valFx} < f(y<sup>${nextPointer - 1}</sup>) = ${fx}, то цей крок вдалий! <br>
+					h = ${h} <br>
+					&epsilon; = ${e} <br>
+				</div>
+			`;
+		}
+    let fos = "4*(x1-5)**2+(x2-6)**2";
+    $('#frn').html(fos);
+    function f(x1,x2) { 
+    return 4*(x1-5)**2+(x2-6)**2;}
+    let h = 1;
+    let k = 0;
+    let e = 0.3;
+    $('#eps').html(e);
+    let x1 = 8;
+    $("#x1").html(x1);
+    let x2 = 9;
+    $("#x2").html(x2);
+    let valFx;
+    $('#fx').html(f(x1,x2));
+    console.log('(x1, x2)=', x1, x2)
+		console.log('f(x1, x2)=', f(x1, x2))
+		console.log("")
+    
+    while (h > e) {
+           
+
+			// иследовательский поиск
+			while(
+				(f(x1,x2) > f(x1+h,x2)) || 
+				(f(x1,x2) > f(x1-h,x2)) || 
+				(f(x1,x2) > f(x1,x2+h)) ||
+				(f(x1,x2) > f(x1,x2-h)) 
+			) 
+			{
+				// удачный поиск
+				let x1_0 = x1;
+				let x2_0 = x2;
+				let fx = f(x1, x2);
+
+				f4=f(x1-h,x2);
+				f3=f(x1,x2+h);
+				f2=f(x1+h,x2);
+				f1=f(x1,x2-h);
+				
+				
+
+				 
+				console.log('f4(x1-h,x2) =', f(x1-h,x2), 'x1-h =', x1-h,'x2 =', x2)
+				console.log('f3(x1,x2+h) =', f3, 'x1 =', x1, 'x2+h =', x2)
+				console.log('f2(x1+h,x2) =', f2, 'x1+h =', x1,'x2 =', x2)
+				console.log('f1(x1,x2-h) =', f(x1,x2-h), 'x1 =', x1,'x2-h =', x2-h)
+				let Min = Math.min(f1, f2, f3, f4);
+
+				if (Min < fx) {
+					// поиск по образцу
+					console.log('x2[x1, x2]=', x1, x2);
+					
+					let prevX = `${x1}, ${x2}`;
+					if (Min == f4) { x1 = x1 - h; x2 = x2; console.log('min = f4 =', f4); valFx = f4; }
+					if (Min == f3) { x1 = x1; x2 = x2 + h; console.log('min = f3 =', f3); valFx = f3; }
+					else if (Min == f2) { x1 = x1 + h; x2 = x2; console.log('min = f2 =', f2); valFx = f2; }
+					else if (Min == f1) { x1 = x1; x2 = x2 - h;console.log('min = f1 =', f1);  valFx = f1; }
+                    
+
+					let nextPointer;
+					if (k>0) nextPointer = 3; else nextPointer = 2;
+
+					$('body').append(component(k, nextPointer, valFx, nextPointer - 1, prevX, `${x1}, ${x2}`, h, fx, f4, f3, f2, f1))
+                    fx++;
+                    
+				}
+
+				k++;
+			}
+
+
+			h = h / 2;
+			k++;
+
+			$('body').append(
+				` 
+					<div>
+						<p><b>Ітерація</b>, k = ${k} </p>
+						Пошук виявися безуспішним <br>
+                        <p>Змінимо крок, зменшивши його в 2 рази:</p>
+						h = ${h} <br>
+						&epsilon; = ${e} <br>
+					</div>
+				`
+			)
+
+			console.log('h=', h, 'e=', e);
+		}
+
+		$('body').append(
+			` 
+				<div>
+					<p><b>Результат</b> </p>
+					Отже: x1 = ${x1}, x2 = ${x2}, при цих значеннях функція набуває мінімального значення, а саме: <br>
+					MINf(x1, x2) = ${valFx}
+				</div>
+			`
+		)
+
+}
+        
+        
+        
+        
+        
+        
+        else{
+            let component = (k, nextPointer, valFx, prevPointer, valPrevPointer, valNextPointer, h, fx) => { 
+			return ` 
+				<div>
+					<p><b>Ітерація</b>, k = ${k} </p>
+					Пошук по зразку: <br>
+					x <sup>${  prevPointer}</sup>(${valPrevPointer}), x <sup>${nextPointer}</sup>(${valNextPointer}) <br>
+                    f1(x1,x2-h) = ${f1};<br>
+                    f2(x1+h,x2) = ${f2};<br>
+                    f3(x1,x2+h) = ${f3};<br>
+                    f4(x1-h,x2) = ${f4};<br>
+                    Оскільки:
+					f(x <sup>${nextPointer}</sup>) = ${valFx} < f(y<sup>${nextPointer - 1}</sup>) = ${fx}, то цей крок вдалий! <br>
+					h = ${h} <br>
+					&epsilon; = ${e} <br>
+				</div>
+			`;
+		}
+            let fn = prompt("Введіть функцію F(x): ") || "";
+        $('#frn').html(fn);
+            function f(x1,x2) { 
+//			return 4*(x1-5)**2+(x2-6)**2;}
+           let res = 0;
+	with(Math){
+		res = eval(fn);
+        return res;   
+	}
+        }
+         
+
+        
+        
+		let h = +prompt("Оберіть крок:"); // шаг 
+		let k = +prompt("Оберіть коофіцієнт:");
+		let e = +prompt("Оберіть епсілон:"); // эпсилон
+        $('#eps').html(e);
+        let x1 = +prompt("Введіть значення x1:");
+        $("#x1").html(x1);
+        let x2 = +prompt("Введіть значення x2:");
+        $("#x2").html(x2); 
+		let valFx;
+
+$('#fx').html(f(x1,x2));
+		console.log('(x1, x2)=', x1, x2)
+		console.log('f(x1, x2)=', f(x1, x2))
+		console.log("")
+while (h > e) {
+            
+
+			// иследовательский поиск
+			while(
+				(f(x1,x2) > f(x1+h,x2)) || 
+				(f(x1,x2) > f(x1-h,x2)) || 
+				(f(x1,x2) > f(x1,x2+h)) ||
+				(f(x1,x2) > f(x1,x2-h)) 
+			) 
+			{
+				// удачный поиск
+				let x1_0 = x1;
+				let x2_0 = x2;
+				let fx = f(x1, x2);
+
+				f4=f(x1-h,x2);
+				f3=f(x1,x2+h);
+				f2=f(x1+h,x2);
+				f1=f(x1,x2-h);
+				
+				
+
+				 
+				console.log('f4(x1-h,x2) =', f(x1-h,x2), 'x1-h =', x1-h,'x2 =', x2)
+				console.log('f3(x1,x2+h) =', f3, 'x1 =', x1, 'x2+h =', x2)
+				console.log('f2(x1+h,x2) =', f2, 'x1+h =', x1,'x2 =', x2)
+				console.log('f1(x1,x2-h) =', f(x1,x2-h), 'x1 =', x1,'x2-h =', x2-h)
+				let Min = Math.min(f1, f2, f3, f4);
+
+				if (Min < fx) {
+					// поиск по образцу
+					console.log('x2[x1, x2]=', x1, x2);
+					
+					let prevX = `${x1}, ${x2}`;
+					if (Min == f4) { x1 = x1 - h; x2 = x2; console.log('min = f4 =', f4); valFx = f4; }
+					if (Min == f3) { x1 = x1; x2 = x2 + h; console.log('min = f3 =', f3); valFx = f3; }
+					else if (Min == f2) { x1 = x1 + h; x2 = x2; console.log('min = f2 =', f2); valFx = f2; }
+					else if (Min == f1) { x1 = x1; x2 = x2 - h;console.log('min = f1 =', f1);  valFx = f1; }
+                    
+
+					let nextPointer;
+					if (k>0) nextPointer = 3; else nextPointer = 2;
+
+					$('body').append(component(k, nextPointer, valFx, nextPointer - 1, prevX, `${x1}, ${x2}`, h, fx, f4, f3, f2, f1))
+                    fx++;
+				}
+
+				k++;
+			}
+
+
+			h = h / 2;
+			k++;
+
+			$('body').append(
+				` 
+					<div>
+						<p><b>Ітерація</b>, k = ${k} </p>
+						Пошук виявися безуспішним <br>
+                        <p>Змінимо крок, зменшивши його в 2 рази:</p>
+						h = ${h} <br>
+						&epsilon; = ${e} <br>
+					</div>
+				`
+			)
+
+			console.log('h=', h, 'e=', e);
+		}
+
+		$('body').append(
+			` 
+				<div>
+					<p><b>Результат</b> </p>
+					Отже: x1 = ${x1}, x2 = ${x2}, при цих значеннях функція набуває мінімального значення, а саме: <br>
+					MINf(x1, x2) = ${valFx}
+				</div>
+			`
+		)
+        }
+	</script>
+</body>
+</html>
